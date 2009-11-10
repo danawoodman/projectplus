@@ -40,7 +40,7 @@
 
 - (float)dividerThickness
 {
-    return 1;
+    return 5;
 }
 
 - (BOOL)sideBarOnRight;
@@ -70,8 +70,8 @@
 }
 
 
-#define MIN_DRAWER_VIEW_WIDTH    85
-#define MIN_DOCUMENT_VIEW_WIDTH 400
+#define MIN_DRAWER_VIEW_WIDTH	130
+#define MIN_DOCUMENT_VIEW_WIDTH 670
 
 - (float)minLeftWidth
 {
