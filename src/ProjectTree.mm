@@ -59,7 +59,7 @@
 	
 	// Switch the NSOutlineView to use `source` styling
 	[outlineView setSelectionHighlightStyle: NSTableViewSelectionHighlightStyleSourceList];
-	[outlineView setRowHeight: 14];
+	[outlineView setRowHeight: 15];
 	[outlineView setIntercellSpacing: (NSSize){3, 6}];
 	
 	// Set the background of the entire window to debug
