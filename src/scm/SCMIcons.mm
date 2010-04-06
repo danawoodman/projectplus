@@ -31,28 +31,26 @@ const NSString* overlayImageNames[] = {@"Modified", @"Added", @"Deleted", @"Vers
 - (void)drawOverlayForRow:(int)rowNumber inProject:(NSString*)projectPath;
 {
 	NSDictionary* item = [self itemAtRow:rowNumber];
+	if (!item) return;
 
-	if (item) {
-		NSString* path        = [item objectForKey:@"filename"];
-		if (!path) path       = [item objectForKey:@"sourceDirectory"];
-		SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:NO];
-		
-		NSImage* overlay = [[SCMIcons sharedInstance] imageForStatusCode:status];
-		if (overlay)
-		{
-			// NSAffineTransform* transform = [NSAffineTransform transform];
-			// [transform rotateByDegrees:180];
-			// [transform concat];
-			[overlay setFlipped:YES];
-			[overlay drawInRect:NSMakeRect(LIST_OFFSET + ([self levelForRow:rowNumber] + 1) * [self indentationPerLevel],
-													rowNumber * ([self rowHeight] + [self intercellSpacing].height),
-													ICON_SIZE, ICON_SIZE)
-                    fromRect:NSZeroRect
-                   operation:NSCompositeSourceOver
-                    fraction:1];
-			[overlay setFlipped:NO];
-		}
-	}
+	NSString* path        = [item objectForKey:@"filename"];
+	if (!path) path       = [item objectForKey:@"sourceDirectory"];
+	SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:NO];
+
+	NSImage* overlay = [[SCMIcons sharedInstance] imageForStatusCode:status];
+	if (!overlay) return;
+
+	// NSAffineTransform* transform = [NSAffineTransform transform];
+	// [transform rotateByDegrees:180];
+	// [transform concat];
+	[overlay setFlipped:YES];
+	[overlay drawInRect:NSMakeRect(LIST_OFFSET + ([self levelForRow:rowNumber] + 1) * [self indentationPerLevel],
+											rowNumber * ([self rowHeight] + [self intercellSpacing].height),
+											ICON_SIZE, ICON_SIZE)
+			fromRect:NSZeroRect
+		   operation:NSCompositeSourceOver
+			fraction:1];
+	[overlay setFlipped:NO];
 }
 
 - (void)scmDrawRect:(NSRect)rect
