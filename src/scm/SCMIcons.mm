@@ -74,26 +74,25 @@ const NSString* overlayImageNames[] = {@"Modified", @"Added", @"Deleted", @"Vers
 {
 	[super setRepresentedFilename:path];
 
-	if([[self delegate] isKindOfClass:OakProjectController])
-	{
-		NSString* projectPath = [[self delegate] valueForKey:@"projectDirectory"];
+	if(not [[self delegate] isKindOfClass:OakProjectController]) return;
 
-		SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:YES];
-		NSImage* overlay      = [[SCMIcons sharedInstance] imageForStatusCode:status];
+	NSString* projectPath = [[self delegate] valueForKey:@"projectDirectory"];
 
-		NSImage* icon = [[[self standardWindowButton:NSWindowDocumentIconButton] image] copy];
-		[icon lockFocus];
+	SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:YES];
+	NSImage* overlay      = [[SCMIcons sharedInstance] imageForStatusCode:status];
 
-		[overlay drawInRect:NSMakeRect(0, 0, [icon size].width, [icon size].height)
-	              fromRect:NSZeroRect
-	             operation:NSCompositeSourceOver
-	              fraction:1];
+	NSImage* icon = [[[self standardWindowButton:NSWindowDocumentIconButton] image] copy];
+	[icon lockFocus];
 
-		[icon unlockFocus];
+	[overlay drawInRect:NSMakeRect(0, 0, [icon size].width, [icon size].height)
+			  fromRect:NSZeroRect
+			 operation:NSCompositeSourceOver
+			  fraction:1];
 
-		[[self standardWindowButton:NSWindowDocumentIconButton] setImage:icon];
-		[icon release];
-	}
+	[icon unlockFocus];
+
+	[[self standardWindowButton:NSWindowDocumentIconButton] setImage:icon];
+	[icon release];
 }
 @end
 
