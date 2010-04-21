@@ -2,6 +2,7 @@
 #import "Sparkle/SUUpdater.h"
 
 extern NSString* ProjectPlus_redrawRequired;
+static NSOperationQueue *ProjectPlus_OperationQueue;
 
 @protocol TMPlugInController
 - (float)version;
@@ -11,7 +12,6 @@ extern NSString* ProjectPlus_redrawRequired;
 {
 	NSImage* icon;
 	BOOL quickLookAvailable;
-	BOOL displayed;
 	IBOutlet NSView *preferencesView;
 	IBOutlet NSTabView* preferencesTabView;
 	IBOutlet NSWindow* sortingDefaultsSheet;

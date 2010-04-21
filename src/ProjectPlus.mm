@@ -68,8 +68,6 @@ static const NSString* PROJECTPLUS_PREFERENCES_LABEL = @"Project+";
 }
 @end
 
-static NSOperationQueue *ProjectPlus_OperationQueue = NULL;
-
 @implementation NSWindowController (OakProjectController_Redrawing)
 - (id)ProjectPlus_init
 {
@@ -107,7 +105,7 @@ static ProjectPlus* SharedInstance = nil;
 	}
 	else if(self = SharedInstance = [[super init] retain])
 	{
-		displayed=NO;
+		ProjectPlus_OperationQueue=nil;
 		quickLookAvailable = [[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/QuickLookUI.framework"] load];
 
 		NSApp = [NSApplication sharedApplication];
