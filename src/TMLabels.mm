@@ -318,35 +318,26 @@ struct Colour {
 
 + (int)colourIndexForPath:(NSString*)path
 {
-	OSStatus ret;
-	OSErr err;
 	FSRef ref;
-	FSCatalogInfo info;
-	UInt16 flags;
-	int colour;
-
-	ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
-
+	OSStatus ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
 	if (ret != noErr)
 		return nil;
 
-	err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
-
+	FSCatalogInfo info;
+	OSErr err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
 	if (err != noErr)
 		return nil;
 
+	UInt16 flags;
 	if (info.nodeFlags & kFSNodeIsDirectoryMask) {
 		FolderInfo *pinfo = (FolderInfo*)&info.finderInfo;
-
 		flags = pinfo->finderFlags;
 	} else {
 		FileInfo *pinfo = (FileInfo*)&info.finderInfo;
-
 		flags = pinfo->finderFlags;
 	}
 
-	colour = (flags & kColor) >> 1;
-
+	int colour = (flags & kColor) >> 1;
 	return colour;
 }
 
@@ -357,28 +348,21 @@ struct Colour {
 
 + (void)setColour:(int)colourIndex forPath:(NSString*)path
 {
-	OSStatus ret;
-	OSErr err;
 	FSRef ref;
-	FSCatalogInfo info;
-
-	ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
-
+	OSStatus ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
 	if (ret != noErr)
 		return;
 
-	err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
-
+	FSCatalogInfo info;
+	OSErr err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
 	if (err != noErr)
 		return;
 
 	if (info.nodeFlags & kFSNodeIsDirectoryMask) {
 		FolderInfo *pinfo = (FolderInfo*)&info.finderInfo;
-
 		pinfo->finderFlags = (pinfo->finderFlags & ~kColor) | (colourIndex << 1);
 	} else {
 		FileInfo *pinfo = (FileInfo*)&info.finderInfo;
-
 		pinfo->finderFlags = (pinfo->finderFlags & ~kColor) | (colourIndex << 1);
 	}
 
