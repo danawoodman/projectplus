@@ -65,14 +65,11 @@ const NSString* overlayImageNames[] = {@"Modified", @"Added", @"Deleted", @"Vers
 }
 @end
 
-@interface NSWindowPoser : NSWindow
-@end
-
-@implementation NSWindowPoser
+@implementation NSWindow (NSWindowPoser)
 // called when the user switches tabs (or load files)
-- (void)setRepresentedFilename:(NSString*)path
+- (void)ProjectPlus_setRepresentedFilename:(NSString*)path
 {
-	[super setRepresentedFilename:path];
+	[self ProjectPlus_setRepresentedFilename:path];
 
 	if(not [[self delegate] isKindOfClass:OakProjectController]) return;
 
@@ -119,8 +116,8 @@ static SCMIcons* SharedInstance;
 		
 		delegates = [[NSMutableArray alloc] initWithCapacity:1];
 
-		[NSWindowPoser poseAsClass:[NSWindow class]];
-
+		[NSWindow  jr_swizzleMethod:@selector(setRepresentedFilename:) withMethod:@selector(ProjectPlus_setRepresentedFilename:) error:NULL];
+		
 		[self loadIconPacks];
 
 		[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0] forKey:@"SCMMateSelectedIconPack"]];
