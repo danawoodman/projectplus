@@ -54,7 +54,7 @@
 	/***** MARK HUOT ******/
 	
 	// Get the NSScrollView and remove the border
-	NSScrollView *scrollView = [[outlineView superview] superview];
+	NSScrollView *scrollView = (NSScrollView *)[[outlineView superview] superview];
 	[scrollView setBorderType: NSNoBorder];
 	
 	// Switch the NSOutlineView to use `source` styling

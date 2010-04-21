@@ -2,6 +2,7 @@
 #import "TextMate.h"
 
 NSString* ProjectPlus_redrawRequired = @"ProjectPlus_redrawRequired";
+NSOperationQueue* ProjectPlus_OperationQueue = nil;
 
 float ToolbarHeightForWindow(NSWindow *window)
 {
@@ -105,7 +106,6 @@ static ProjectPlus* SharedInstance = nil;
 	}
 	else if(self = SharedInstance = [[super init] retain])
 	{
-		ProjectPlus_OperationQueue=nil;
 		quickLookAvailable = [[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/QuickLookUI.framework"] load];
 
 		NSApp = [NSApplication sharedApplication];
