@@ -1,8 +1,6 @@
-New in this fork:
------------------
+**No more waiting!**
 
 List refresh was moved to thread to return to application instantly.
-No more waiting!
 
 ![Screen Shot](http://github.com/markhuot/projectplus/raw/master/releases/shot.png)
 
