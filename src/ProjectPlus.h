@@ -11,6 +11,7 @@ extern NSString* ProjectPlus_redrawRequired;
 {
 	NSImage* icon;
 	BOOL quickLookAvailable;
+	BOOL displayed;
 	IBOutlet NSView *preferencesView;
 	IBOutlet NSTabView* preferencesTabView;
 	IBOutlet NSWindow* sortingDefaultsSheet;

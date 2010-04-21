@@ -1,6 +1,6 @@
 build
-ProjectPlus.xcodeproj/ciaran.*
-ProjectPlus.xcodeproj/adamv.*
+*.pbxuser
+*.perspectivev3
 *.tmproj
 .DS_Store
 dsa_priv.pem

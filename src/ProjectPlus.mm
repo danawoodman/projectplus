@@ -68,10 +68,13 @@ static const NSString* PROJECTPLUS_PREFERENCES_LABEL = @"Project+";
 }
 @end
 
+static NSOperationQueue *ProjectPlus_OperationQueue = NULL;
+
 @implementation NSWindowController (OakProjectController_Redrawing)
 - (id)ProjectPlus_init
 {
 	self = [self ProjectPlus_init];
+	ProjectPlus_OperationQueue = [[NSOperationQueue alloc] init];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ProjectPlus_redrawRequired:) name:ProjectPlus_redrawRequired object:nil];
 	return self;
 }
@@ -79,6 +82,12 @@ static const NSString* PROJECTPLUS_PREFERENCES_LABEL = @"Project+";
 - (void)ProjectPlus_redrawRequired:(NSNotification*)notification
 {
 	[(NSOutlineView*)[self valueForKey:@"outlineView"] setNeedsDisplay:YES];
+}
+
+-(void)ProjectPlus_applicationDidBecomeActiveNotification:(NSNotification *)note {
+	NSInvocationOperation *oper=[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(ProjectPlus_applicationDidBecomeActiveNotification:) object:note];
+	[ProjectPlus_OperationQueue addOperation:oper];
+	[oper release];
 }
 @end
 
@@ -97,6 +106,7 @@ static ProjectPlus* SharedInstance = nil;
 	}
 	else if(self = SharedInstance = [[super init] retain])
 	{
+		displayed=NO;
 		quickLookAvailable = [[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/QuickLookUI.framework"] load];
 
 		NSApp = [NSApplication sharedApplication];
@@ -115,6 +125,9 @@ static ProjectPlus* SharedInstance = nil;
 		[OakPreferencesManager jr_swizzleMethod:@selector(toolbarSelectableItemIdentifiers:) withMethod:@selector(ProjectPlus_toolbarSelectableItemIdentifiers:) error:NULL];
 		[OakPreferencesManager jr_swizzleMethod:@selector(toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:) withMethod:@selector(ProjectPlus_toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:) error:NULL];
 		[OakPreferencesManager jr_swizzleMethod:@selector(selectToolbarItem:) withMethod:@selector(ProjectPlus_selectToolbarItem:) error:NULL];
+		
+		[OakProjectController jr_swizzleMethod:@selector(applicationDidBecomeActiveNotification:) withMethod:@selector(ProjectPlus_applicationDidBecomeActiveNotification:) error:NULL];
+		//[OakProjectController jr_swizzleMethod:@selector(isItemChanged:) withMethod:@selector(ProjectPlus_isItemChanged:) error:NULL];
 
 		[OakProjectController jr_swizzleMethod:@selector(init) withMethod:@selector(ProjectPlus_init) error:NULL];
 	}
