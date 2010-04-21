@@ -74,7 +74,8 @@ static NSOperationQueue *ProjectPlus_OperationQueue = NULL;
 - (id)ProjectPlus_init
 {
 	self = [self ProjectPlus_init];
-	ProjectPlus_OperationQueue = [[NSOperationQueue alloc] init];
+	if (!ProjectPlus_OperationQueue)
+		ProjectPlus_OperationQueue = [[NSOperationQueue alloc] init];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ProjectPlus_redrawRequired:) name:ProjectPlus_redrawRequired object:nil];
 	return self;
 }
@@ -127,8 +128,6 @@ static ProjectPlus* SharedInstance = nil;
 		[OakPreferencesManager jr_swizzleMethod:@selector(selectToolbarItem:) withMethod:@selector(ProjectPlus_selectToolbarItem:) error:NULL];
 		
 		[OakProjectController jr_swizzleMethod:@selector(applicationDidBecomeActiveNotification:) withMethod:@selector(ProjectPlus_applicationDidBecomeActiveNotification:) error:NULL];
-		//[OakProjectController jr_swizzleMethod:@selector(isItemChanged:) withMethod:@selector(ProjectPlus_isItemChanged:) error:NULL];
-
 		[OakProjectController jr_swizzleMethod:@selector(init) withMethod:@selector(ProjectPlus_init) error:NULL];
 	}
 
