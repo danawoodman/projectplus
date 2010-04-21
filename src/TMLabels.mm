@@ -122,22 +122,22 @@ struct Colour {
 - (void)drawLabelForRow:(int)rowNumber
 {
 	NSDictionary *item = [self itemAtRow:rowNumber];
-	if (item) {
-		NSString *path = [item objectForKey:@"filename"];
-		if (!path) path = [item objectForKey:@"sourceDirectory"];
+	if (!item) return;
 
-		int labelColorIndex = [TMLabels colourIndexForPath:path];
-		if (labelColorIndex > 0) {
-			NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
-			r.origin.y += 0.0f;
-			r.size.height -= 1.0f;
+	NSString *path = [item objectForKey:@"filename"];
+	if (!path) path = [item objectForKey:@"sourceDirectory"];
 
-			if([self isRowSelected:rowNumber])
-				r.size.width = 15.0f;
+	int labelColorIndex = [TMLabels colourIndexForPath:path];
+	if (labelColorIndex <= 0) return;
 
-			[TMLabels drawLabelIndex:labelColorIndex inRect:r];
-		}
-	}
+	NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
+	r.origin.y += 0.0f;
+	r.size.height -= 1.0f;
+
+	if([self isRowSelected:rowNumber])
+		r.size.width = 15.0f;
+
+	[TMLabels drawLabelIndex:labelColorIndex inRect:r];
 }
 
 - (void)drawSelectedLabelForRow:(int)rowNumber
