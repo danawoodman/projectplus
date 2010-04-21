@@ -1,3 +1,9 @@
+New in this fork:
+-----------------
+
+List refresh was moved to thread to return to application instantly.
+No more waiting!
+
 ![Screen Shot](http://github.com/markhuot/projectplus/raw/master/releases/shot.png)
 
 An updated version ready for Snow Leopard.
