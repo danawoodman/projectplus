@@ -116,7 +116,7 @@ static SCMIcons* SharedInstance;
 		
 		delegates = [[NSMutableArray alloc] initWithCapacity:1];
 
-		[NSWindow  jr_swizzleMethod:@selector(setRepresentedFilename:) withMethod:@selector(ProjectPlus_setRepresentedFilename:) error:NULL];
+		[NSWindow jr_swizzleMethod:@selector(setRepresentedFilename:) withMethod:@selector(ProjectPlus_setRepresentedFilename:) error:NULL];
 		
 		[self loadIconPacks];
 
