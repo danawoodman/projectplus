@@ -1,0 +1,2 @@
+Note: I reserve the right to rebase the "working" branch at will.
+You've been warned!
