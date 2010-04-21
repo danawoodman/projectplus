@@ -79,14 +79,14 @@
 	return YES;
 }
 
-- (void)openSelectedItemWith:(id <NSMenuItem>)sender
+- (void)openSelectedItemWith:(NSMenuItem *)sender
 {
 	NSString* filePath = [[self URLForOpeningApp] path];
 	NSString* appPath = [[[OpenWith applicationsForURL:[self URLForOpeningApp]] objectAtIndex:[sender tag]] path];
 	[[NSWorkspace sharedWorkspace] openFile:filePath withApplication:appPath];
 }
 
-- (BOOL)OpenWith_validateMenuItem:(id <NSMenuItem>)item
+- (BOOL)OpenWith_validateMenuItem:(NSMenuItem *)item
 {
 	if([item action] == @selector(openSelectedItemWith:))
 		return YES;
