@@ -229,14 +229,13 @@ static SCMIcons* SharedInstance;
 	while(iconPackName = [dirEnum nextObject])
 	{
 		[dirEnum skipDescendents];
-		if([[dirEnum fileAttributes] objectForKey:NSFileType] == NSFileTypeDirectory)
+		if([[dirEnum fileAttributes] objectForKey:NSFileType] != NSFileTypeDirectory) continue;
+
+		NSDictionary* icons = [self iconPackNamed:iconPackName];
+		if(icons && [icons count])
 		{
-			NSDictionary* icons = [self iconPackNamed:iconPackName];
-			if(icons && [icons count])
-			{
-				NSDictionary* iconPack = [NSDictionary dictionaryWithObjectsAndKeys:[self iconPackNamed:iconPackName],@"icons",iconPackName,@"name",nil];
-				[iconPacks addObject:iconPack];
-			}
+			NSDictionary* iconPack = [NSDictionary dictionaryWithObjectsAndKeys:[self iconPackNamed:iconPackName],@"icons",iconPackName,@"name",nil];
+			[iconPacks addObject:iconPack];
 		}
 	}
 }
