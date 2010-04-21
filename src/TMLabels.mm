@@ -143,27 +143,26 @@ struct Colour {
 - (void)drawSelectedLabelForRow:(int)rowNumber
 {
 	NSDictionary *item = [self itemAtRow:rowNumber];
-	if (item) {
-		NSString *path = [item objectForKey:@"filename"];
-		if (!path) path = [item objectForKey:@"sourceDirectory"];
+	if (!item) return;
 
-		int labelColorIndex = [TMLabels colourIndexForPath:path];
-		if (labelColorIndex > 0) {
-			NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
-			r.origin.y += 1.0f;
-			r.size.height = 12;
+	NSString *path = [item objectForKey:@"filename"];
+	if (!path) path = [item objectForKey:@"sourceDirectory"];
 
-			r.size.width = 15.0f;
+	int labelColorIndex = [TMLabels colourIndexForPath:path];
+	if (labelColorIndex <= 0) return;
 
-			NSRect rect = [self rectOfRow:rowNumber];
-			rect.origin.x = LIST_OFFSET + [self levelForRow:rowNumber] * ICON_SIZE + 1;
-			rect.origin.y += 2;
-			rect.size.width  = 12;
-			rect.size.height = 12;
+	NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
+	r.origin.y += 1.0f;
+	r.size.height = 12;
+	r.size.width = 15.0f;
 
-			[TMLabels drawLabelIndex:labelColorIndex inRect:rect];
-		}
-	}
+	NSRect rect = [self rectOfRow:rowNumber];
+	rect.origin.x = LIST_OFFSET + [self levelForRow:rowNumber] * ICON_SIZE + 1;
+	rect.origin.y += 2;
+	rect.size.width  = 12;
+	rect.size.height = 12;
+
+	[TMLabels drawLabelIndex:labelColorIndex inRect:rect];
 }
 
 - (void)labeledHighlightSelectionInClipRect:(NSRect)clipRect
