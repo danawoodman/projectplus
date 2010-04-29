@@ -58,9 +58,10 @@
 	[scrollView setBorderType: NSNoBorder];
 	
 	// Switch the NSOutlineView to use `source` styling
-//	[outlineView setSelectionHighlightStyle: NSTableViewSelectionHighlightStyleSourceList];
-//	[outlineView setRowHeight: 12];
-//	[outlineView setIntercellSpacing: (NSSize){3, 6}];
+	//	[outlineView setSelectionHighlightStyle: NSTableViewSelectionHighlightStyleSourceList];
+	//	[outlineView setRowHeight: 12];
+	//	[outlineView setIntercellSpacing: (NSSize){3, 6}];
+	[outlineView setBackgroundColor:[NSColor colorWithDeviceRed:.98 green:.98 blue:.99 alpha:1]];
 	
 	// Set the background of the entire window to debug
 	//[[self window] setBackgroundColor:[NSColor blueColor]];
