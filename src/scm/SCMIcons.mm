@@ -31,28 +31,26 @@ const NSString* overlayImageNames[] = {@"Modified", @"Added", @"Deleted", @"Vers
 - (void)drawOverlayForRow:(int)rowNumber inProject:(NSString*)projectPath;
 {
 	NSDictionary* item = [self itemAtRow:rowNumber];
+	if (!item) return;
 
-	if (item) {
-		NSString* path        = [item objectForKey:@"filename"];
-		if (!path) path       = [item objectForKey:@"sourceDirectory"];
-		SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:NO];
-		
-		NSImage* overlay = [[SCMIcons sharedInstance] imageForStatusCode:status];
-		if (overlay)
-		{
-			// NSAffineTransform* transform = [NSAffineTransform transform];
-			// [transform rotateByDegrees:180];
-			// [transform concat];
-			[overlay setFlipped:YES];
-			[overlay drawInRect:NSMakeRect(LIST_OFFSET + ([self levelForRow:rowNumber] + 1) * [self indentationPerLevel],
-													rowNumber * ([self rowHeight] + [self intercellSpacing].height),
-													ICON_SIZE, ICON_SIZE)
-                    fromRect:NSZeroRect
-                   operation:NSCompositeSourceOver
-                    fraction:1];
-			[overlay setFlipped:NO];
-		}
-	}
+	NSString* path        = [item objectForKey:@"filename"];
+	if (!path) path       = [item objectForKey:@"sourceDirectory"];
+	SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:NO];
+
+	NSImage* overlay = [[SCMIcons sharedInstance] imageForStatusCode:status];
+	if (!overlay) return;
+
+	// NSAffineTransform* transform = [NSAffineTransform transform];
+	// [transform rotateByDegrees:180];
+	// [transform concat];
+	[overlay setFlipped:YES];
+	[overlay drawInRect:NSMakeRect(LIST_OFFSET + ([self levelForRow:rowNumber] + 1) * [self indentationPerLevel],
+											rowNumber * ([self rowHeight] + [self intercellSpacing].height),
+											ICON_SIZE, ICON_SIZE)
+			fromRect:NSZeroRect
+		   operation:NSCompositeSourceOver
+			fraction:1];
+	[overlay setFlipped:NO];
 }
 
 - (void)scmDrawRect:(NSRect)rect
@@ -67,35 +65,31 @@ const NSString* overlayImageNames[] = {@"Modified", @"Added", @"Deleted", @"Vers
 }
 @end
 
-@interface NSWindowPoser : NSWindow
-@end
-
-@implementation NSWindowPoser
+@implementation NSWindow (NSWindowPoser)
 // called when the user switches tabs (or load files)
-- (void)setRepresentedFilename:(NSString*)path
+- (void)ProjectPlus_setRepresentedFilename:(NSString*)path
 {
-	[super setRepresentedFilename:path];
+	[self ProjectPlus_setRepresentedFilename:path];
 
-	if([[self delegate] isKindOfClass:OakProjectController])
-	{
-		NSString* projectPath = [[self delegate] valueForKey:@"projectDirectory"];
+	if(not [[self delegate] isKindOfClass:OakProjectController]) return;
 
-		SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:YES];
-		NSImage* overlay      = [[SCMIcons sharedInstance] imageForStatusCode:status];
+	NSString* projectPath = [[self delegate] valueForKey:@"projectDirectory"];
 
-		NSImage* icon = [[[self standardWindowButton:NSWindowDocumentIconButton] image] copy];
-		[icon lockFocus];
+	SCMIconsStatus status = [[SCMIcons sharedInstance] statusForPath:path inProject:projectPath reload:YES];
+	NSImage* overlay      = [[SCMIcons sharedInstance] imageForStatusCode:status];
 
-		[overlay drawInRect:NSMakeRect(0, 0, [icon size].width, [icon size].height)
-	              fromRect:NSZeroRect
-	             operation:NSCompositeSourceOver
-	              fraction:1];
+	NSImage* icon = [[[self standardWindowButton:NSWindowDocumentIconButton] image] copy];
+	[icon lockFocus];
 
-		[icon unlockFocus];
+	[overlay drawInRect:NSMakeRect(0, 0, [icon size].width, [icon size].height)
+			  fromRect:NSZeroRect
+			 operation:NSCompositeSourceOver
+			  fraction:1];
 
-		[[self standardWindowButton:NSWindowDocumentIconButton] setImage:icon];
-		[icon release];
-	}
+	[icon unlockFocus];
+
+	[[self standardWindowButton:NSWindowDocumentIconButton] setImage:icon];
+	[icon release];
 }
 @end
 
@@ -122,8 +116,8 @@ static SCMIcons* SharedInstance;
 		
 		delegates = [[NSMutableArray alloc] initWithCapacity:1];
 
-		[NSWindowPoser poseAsClass:[NSWindow class]];
-
+		[NSWindow jr_swizzleMethod:@selector(setRepresentedFilename:) withMethod:@selector(ProjectPlus_setRepresentedFilename:) error:NULL];
+		
 		[self loadIconPacks];
 
 		[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0] forKey:@"SCMMateSelectedIconPack"]];
@@ -231,14 +225,13 @@ static SCMIcons* SharedInstance;
 	while(iconPackName = [dirEnum nextObject])
 	{
 		[dirEnum skipDescendents];
-		if([[dirEnum fileAttributes] objectForKey:NSFileType] == NSFileTypeDirectory)
+		if([[dirEnum fileAttributes] objectForKey:NSFileType] != NSFileTypeDirectory) continue;
+
+		NSDictionary* icons = [self iconPackNamed:iconPackName];
+		if(icons && [icons count])
 		{
-			NSDictionary* icons = [self iconPackNamed:iconPackName];
-			if(icons && [icons count])
-			{
-				NSDictionary* iconPack = [NSDictionary dictionaryWithObjectsAndKeys:[self iconPackNamed:iconPackName],@"icons",iconPackName,@"name",nil];
-				[iconPacks addObject:iconPack];
-			}
+			NSDictionary* iconPack = [NSDictionary dictionaryWithObjectsAndKeys:[self iconPackNamed:iconPackName],@"icons",iconPackName,@"name",nil];
+			[iconPacks addObject:iconPack];
 		}
 	}
 }

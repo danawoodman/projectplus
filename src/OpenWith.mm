@@ -23,22 +23,21 @@
 	NSArray* items = [menu itemArray];
 	for(int index = 0; index < [items count]; index++)
 	{
-		if([[items objectAtIndex:index] action] == @selector(openFileWithFinder:))
+		if([[items objectAtIndex:index] action] != @selector(openFileWithFinder:))
+			continue;
+
+		NSMenuItem *openWithMenuItem = [[NSMenuItem alloc] initWithTitle:@"Open With…" action:nil keyEquivalent:@""];
 		{
-			NSMenuItem *openWithMenuItem = [[NSMenuItem alloc] initWithTitle:@"Open With…" action:nil keyEquivalent:@""];
-			{
-				NSMenu *openWithSubMenu = [[NSMenu alloc] init];
-				[openWithSubMenu setDelegate:self];
+			NSMenu *openWithSubMenu = [[NSMenu alloc] init];
+			[openWithSubMenu setDelegate:self];
 
-				[openWithMenuItem setSubmenu:openWithSubMenu];
-				[openWithSubMenu release];
-			}
-			[menu insertItem:openWithMenuItem atIndex:index+1];
-			[openWithMenuItem release];
-			break;
+			[openWithMenuItem setSubmenu:openWithSubMenu];
+			[openWithSubMenu release];
 		}
+		[menu insertItem:openWithMenuItem atIndex:index+1];
+		[openWithMenuItem release];
+		break;
 	}
-
 }
 
 - (NSURL*)URLForOpeningApp
@@ -80,14 +79,14 @@
 	return YES;
 }
 
-- (void)openSelectedItemWith:(id <NSMenuItem>)sender
+- (void)openSelectedItemWith:(NSMenuItem *)sender
 {
 	NSString* filePath = [[self URLForOpeningApp] path];
 	NSString* appPath = [[[OpenWith applicationsForURL:[self URLForOpeningApp]] objectAtIndex:[sender tag]] path];
 	[[NSWorkspace sharedWorkspace] openFile:filePath withApplication:appPath];
 }
 
-- (BOOL)OpenWith_validateMenuItem:(id <NSMenuItem>)item
+- (BOOL)OpenWith_validateMenuItem:(NSMenuItem *)item
 {
 	if([item action] == @selector(openSelectedItemWith:))
 		return YES;

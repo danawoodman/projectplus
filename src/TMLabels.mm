@@ -122,48 +122,48 @@ struct Colour {
 - (void)drawLabelForRow:(int)rowNumber
 {
 	NSDictionary *item = [self itemAtRow:rowNumber];
-	if (item) {
-		NSString *path = [item objectForKey:@"filename"];
-		if (!path) path = [item objectForKey:@"sourceDirectory"];
+	if (!item) return;
 
-		int labelColorIndex = [TMLabels colourIndexForPath:path];
-		if (labelColorIndex > 0) {
-			NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
-			r.origin.y += 0.0f;
-			r.size.height -= 1.0f;
+	NSString *path = [item objectForKey:@"filename"];
+	if (!path) path = [item objectForKey:@"sourceDirectory"];
 
-			if([self isRowSelected:rowNumber])
-				r.size.width = 15.0f;
+	int labelColorIndex = [TMLabels colourIndexForPath:path];
+	if (labelColorIndex <= 0) return;
 
-			[TMLabels drawLabelIndex:labelColorIndex inRect:r];
-		}
-	}
+	NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
+	r.origin.y += 0.0f;
+	r.size.height -= 1.0f;
+
+	if([self isRowSelected:rowNumber])
+		r.size.width = 15.0f;
+
+	[TMLabels drawLabelIndex:labelColorIndex inRect:r];
 }
 
 - (void)drawSelectedLabelForRow:(int)rowNumber
 {
 	NSDictionary *item = [self itemAtRow:rowNumber];
-	if (item) {
-		NSString *path = [item objectForKey:@"filename"];
-		if (!path) path = [item objectForKey:@"sourceDirectory"];
+	if (!item) return;
 
-		int labelColorIndex = [TMLabels colourIndexForPath:path];
-		if (labelColorIndex > 0) {
-			NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
-			r.origin.y += 1.0f;
-			r.size.height = 12;
+	NSString *path = [item objectForKey:@"filename"];
+	if (!path) path = [item objectForKey:@"sourceDirectory"];
 
-			r.size.width = 15.0f;
+	int labelColorIndex = [TMLabels colourIndexForPath:path];
+	if (labelColorIndex <= 0) return;
 
-			NSRect rect = [self rectOfRow:rowNumber];
-			rect.origin.x = LIST_OFFSET + [self levelForRow:rowNumber] * ICON_SIZE + 1;
-			rect.origin.y += 2;
-			rect.size.width  = 12;
-			rect.size.height = 12;
+	// AdamV: is 'r' being used for anything?
+	NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
+	r.origin.y += 1.0f;
+	r.size.height = 12;
+	r.size.width = 15.0f;
 
-			[TMLabels drawLabelIndex:labelColorIndex inRect:rect];
-		}
-	}
+	NSRect rect = [self rectOfRow:rowNumber];
+	rect.origin.x = LIST_OFFSET + [self levelForRow:rowNumber] * ICON_SIZE + 1;
+	rect.origin.y += 2;
+	rect.size.width  = 12;
+	rect.size.height = 12;
+
+	[TMLabels drawLabelIndex:labelColorIndex inRect:rect];
 }
 
 - (void)labeledHighlightSelectionInClipRect:(NSRect)clipRect
@@ -210,7 +210,7 @@ struct Colour {
 	return items;
 }
 
-- (BOOL)myValidateMenuItem:(id <NSMenuItem>)menuItem
+- (BOOL)myValidateMenuItem:(NSMenuItem *)menuItem
 {
 	if ([menuItem action] == @selector(setColourLabel:)) {
 		NSArray *items = [self selectedItems];
@@ -271,7 +271,7 @@ struct Colour {
 		int colourCount = sizeof(colours) / sizeof(Colour);
 		for (int index = 0; index < colourCount; index++) {
 			Str255 str = { };
-			NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:(noErr == GetLabel(index, NULL, str) ? [NSString stringWithCString:(char*)str] : colours[index].name)
+			NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:(noErr == GetLabel(index, NULL, str) ? [NSString stringWithCString:(char*)str encoding:NSASCIIStringEncoding] : colours[index].name)
                                                        action:@selector(setColourLabel:)
                                                 keyEquivalent:@""];
 			[item setTarget:self];
@@ -319,35 +319,26 @@ struct Colour {
 
 + (int)colourIndexForPath:(NSString*)path
 {
-	OSStatus ret;
-	OSErr err;
 	FSRef ref;
-	FSCatalogInfo info;
-	UInt16 flags;
-	int colour;
-
-	ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
-
+	OSStatus ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
 	if (ret != noErr)
 		return nil;
 
-	err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
-
+	FSCatalogInfo info;
+	OSErr err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
 	if (err != noErr)
 		return nil;
 
+	UInt16 flags;
 	if (info.nodeFlags & kFSNodeIsDirectoryMask) {
 		FolderInfo *pinfo = (FolderInfo*)&info.finderInfo;
-
 		flags = pinfo->finderFlags;
 	} else {
 		FileInfo *pinfo = (FileInfo*)&info.finderInfo;
-
 		flags = pinfo->finderFlags;
 	}
 
-	colour = (flags & kColor) >> 1;
-
+	int colour = (flags & kColor) >> 1;
 	return colour;
 }
 
@@ -358,28 +349,21 @@ struct Colour {
 
 + (void)setColour:(int)colourIndex forPath:(NSString*)path
 {
-	OSStatus ret;
-	OSErr err;
 	FSRef ref;
-	FSCatalogInfo info;
-
-	ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
-
+	OSStatus ret = FSPathMakeRef ((UInt8*)[path UTF8String], &ref, NULL);
 	if (ret != noErr)
 		return;
 
-	err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
-
+	FSCatalogInfo info;
+	OSErr err = FSGetCatalogInfo (&ref, kFSCatInfoNodeFlags | kFSCatInfoFinderInfo, &info, NULL, NULL, NULL);
 	if (err != noErr)
 		return;
 
 	if (info.nodeFlags & kFSNodeIsDirectoryMask) {
 		FolderInfo *pinfo = (FolderInfo*)&info.finderInfo;
-
 		pinfo->finderFlags = (pinfo->finderFlags & ~kColor) | (colourIndex << 1);
 	} else {
 		FileInfo *pinfo = (FileInfo*)&info.finderInfo;
-
 		pinfo->finderFlags = (pinfo->finderFlags & ~kColor) | (colourIndex << 1);
 	}
 

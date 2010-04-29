@@ -81,13 +81,10 @@
 - (void)SideBarSwitching_openProjectDrawer:(id)sender
 {
 	CWTMSplitView* splitView = [[self window] contentView];
-	if(not [splitView isKindOfClass:[CWTMSplitView class]])
-	{
+	if([splitView isKindOfClass:[CWTMSplitView class]])
+		[self setSidebarIsClosed:NO];
+	else
 		[self SideBarSwitching_openProjectDrawer:sender];
-		return;
-	}
-
-	[self setSidebarIsClosed:NO];
 }
 
 - (void)SideBarSwitching_toggleGroupsAndFilesDrawer:(id)sender
@@ -104,7 +101,7 @@
 	[self setSidebarIsClosed:close];
 }
 
-- (BOOL)SideBarSwitching_validateMenuItem:(id <NSMenuItem>)item;
+- (BOOL)SideBarSwitching_validateMenuItem:(NSMenuItem *)item;
 {
 	BOOL valid = [self SideBarSwitching_validateMenuItem:item];
 	

@@ -2,22 +2,18 @@
 #import "TextMate.h"
 
 NSString* ProjectPlus_redrawRequired = @"ProjectPlus_redrawRequired";
+NSOperationQueue* ProjectPlus_OperationQueue = nil;
 
 float ToolbarHeightForWindow(NSWindow *window)
 {
-	NSToolbar *toolbar;
-	float toolbarHeight = 0.0;
-	NSRect windowFrame;
-
-	toolbar = [window toolbar];
-
+	NSToolbar *toolbar = [window toolbar];
 	if(toolbar && [toolbar isVisible])
 	{
-		windowFrame   = [NSWindow contentRectForFrameRect:[window frame] styleMask:[window styleMask]];
-		toolbarHeight = NSHeight(windowFrame) - NSHeight([[window contentView] frame]);
+		NSRect windowFrame = [NSWindow contentRectForFrameRect:[window frame] styleMask:[window styleMask]];
+		float toolbarHeight = NSHeight(windowFrame) - NSHeight([[window contentView] frame]);
+		return toolbarHeight;
 	}
-
-	return toolbarHeight;
+	else return 0.0;
 }
 
 static const NSString* PROJECTPLUS_PREFERENCES_LABEL = @"Project+";
@@ -72,6 +68,8 @@ static const NSString* PROJECTPLUS_PREFERENCES_LABEL = @"Project+";
 - (id)ProjectPlus_init
 {
 	self = [self ProjectPlus_init];
+	if (!ProjectPlus_OperationQueue)
+		ProjectPlus_OperationQueue = [[NSOperationQueue alloc] init];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ProjectPlus_redrawRequired:) name:ProjectPlus_redrawRequired object:nil];
 	return self;
 }
@@ -79,6 +77,12 @@ static const NSString* PROJECTPLUS_PREFERENCES_LABEL = @"Project+";
 - (void)ProjectPlus_redrawRequired:(NSNotification*)notification
 {
 	[(NSOutlineView*)[self valueForKey:@"outlineView"] setNeedsDisplay:YES];
+}
+
+-(void)ProjectPlus_applicationDidBecomeActiveNotification:(NSNotification *)note {
+	NSInvocationOperation *oper=[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(ProjectPlus_applicationDidBecomeActiveNotification:) object:note];
+	[ProjectPlus_OperationQueue addOperation:oper];
+	[oper release];
 }
 @end
 
@@ -115,7 +119,8 @@ static ProjectPlus* SharedInstance = nil;
 		[OakPreferencesManager jr_swizzleMethod:@selector(toolbarSelectableItemIdentifiers:) withMethod:@selector(ProjectPlus_toolbarSelectableItemIdentifiers:) error:NULL];
 		[OakPreferencesManager jr_swizzleMethod:@selector(toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:) withMethod:@selector(ProjectPlus_toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:) error:NULL];
 		[OakPreferencesManager jr_swizzleMethod:@selector(selectToolbarItem:) withMethod:@selector(ProjectPlus_selectToolbarItem:) error:NULL];
-
+		
+		[OakProjectController jr_swizzleMethod:@selector(applicationDidBecomeActiveNotification:) withMethod:@selector(ProjectPlus_applicationDidBecomeActiveNotification:) error:NULL];
 		[OakProjectController jr_swizzleMethod:@selector(init) withMethod:@selector(ProjectPlus_init) error:NULL];
 	}
 

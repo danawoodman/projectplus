@@ -2,6 +2,7 @@
 #import "Sparkle/SUUpdater.h"
 
 extern NSString* ProjectPlus_redrawRequired;
+extern NSOperationQueue *ProjectPlus_OperationQueue;
 
 @protocol TMPlugInController
 - (float)version;
