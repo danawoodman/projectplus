@@ -151,7 +151,6 @@ struct Colour {
 	int labelColorIndex = [TMLabels colourIndexForPath:path];
 	if (labelColorIndex <= 0) return;
 
-	// AdamV: is 'r' being used for anything?
 	NSRect r = NSIntegralRect(NSInsetRect([self rectOfRow:rowNumber], 2.0f, 0.0f));
 	r.origin.y += 1.0f;
 	r.size.height = 12;
